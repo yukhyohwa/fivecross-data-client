@@ -84,12 +84,24 @@ Edit `tasks/scheduled_multi_tasks.json` to define your suite of reports:
 ```
 **Trigger the tasks:**
 ```bash
-# Windows
+# Windows (Manual)
 .\scripts\run_query.bat
 
-# Manual
+# Manual CLI
 python main.py --task tasks/scheduled_multi_tasks.json
 ```
+
+## 🕒 Windows Task Scheduler (Automation)
+To run your reports automatically every day:
+1.  **Open Task Scheduler**: Press `Win + R`, type `taskschd.msc`, and hit Enter.
+2.  **Create Basic Task**:
+    - Name: `FiveCross_Daily_Report`
+    - Trigger: `Daily` (e.g., 08:30 AM)
+    - Action: `Start a program`
+3.  **Configure Action**:
+    - Program/script: `C:\Users\5xgames\Desktop\github\fivecross-data-client\scripts\run_query.bat`
+    - Start in (optional): `C:\Users\5xgames\Desktop\github\fivecross-data-client\`
+4.  **Security Options**: (Optional) In the Task Properties, check "Run whether user is logged on or not" and "Run with highest privileges" for better reliability.
 
 ### 3. Log Seeker (Tool)
 Quickly locate specific IDs within massive local CSV logs:
