@@ -39,7 +39,7 @@ We provide a one-click setup script to handle Python VENV, dependencies, and Pla
     cd fivecross-data-client
     ```
 2.  **Run Setup**:
-    Double-click `setup.bat` or run `.\setup.bat`.
+    Double-click `scripts\setup.bat` or run `.\scripts\setup.bat`.
 3.  **Configure `.env`**:
     - **ThinkingData**: Set `TA_USER_CN`/`TA_PASS_CN` or `TA_USER_GLOBAL`/`TA_PASS_GLOBAL`.
     - **AliCloud**: Set `ALIYUN_AK_CN`/`ALIYUN_SK_CN` and endpoint variables.
@@ -139,4 +139,4 @@ SELECT * FROM ...
 - `queries/sql-lib/`: **[Private Submodule]** The shared internal SQL library.
 - `tools/`: Built-in utilities (Log Seeker, etc.).
 - `output/`: Generated reports and debug snapshots.
-- `setup.bat`: One-click initialization script.
+- `scripts/setup.bat`: One-click initialization script.
