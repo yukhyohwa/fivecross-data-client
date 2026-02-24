@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*$py.class
+ta_session/
+output/
+.env
+.DS_Store
+*.xlsx
+*.csv
+*.log
+*.txt
+.idea/
+.vscode/
+queries/adhoc_*.sql
+!.gitkeep
