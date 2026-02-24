@@ -1,0 +1,23 @@
+[
+    {
+        "name": "example_ta_task",
+        "engine": "ta",
+        "sql": "SELECT 1=1",
+        "mailto": "recipient@example.com",
+        "formats": ["xlsx", "csv"]
+    },
+    {
+        "name": "example_odps_task",
+        "engine": "odps",
+        "region": "global",
+        "file": "tasks/your_query.sql",
+        "formats": ["csv"]
+    },
+    {
+        "name": "example_holo_task",
+        "engine": "holo",
+        "region": "china",
+        "sql": "SELECT * FROM public.table_name LIMIT 10",
+        "formats": ["xlsx", "txt"]
+    }
+]

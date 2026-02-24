@@ -49,6 +49,12 @@ output/
 queries/adhoc_ta.sql
 queries/adhoc_ali.sql
 
+# --- Task Configuration ---
+tasks/*.json
+tasks/*.sql
+!tasks/*.example
+!tasks/.gitkeep
+
 # --- Exceptions ---
 # Explicitly keep examples and gitkeep
 !*.example
