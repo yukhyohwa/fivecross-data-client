@@ -1,5 +1,13 @@
 # FiveCross Unified Data Client
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-blue.svg" alt="Python Version">
+  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg" alt="Platform">
+  <img src="https://img.shields.io/badge/Engines-TA%20%7C%20ODPS%20%7C%20Holo-orange.svg" alt="Engines">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+</p>
+
 A powerful and unified data extraction framework for ThinkingData (TA), AliCloud ODPS (MaxCompute), and Hologres. Designed for both quick ad-hoc analysis and scheduled multi-task reporting.
 
 ## 🌟 Key Features
