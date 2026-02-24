@@ -51,20 +51,20 @@ python main.py --task tasks/scheduled_multi_tasks.json
 ### 2. Interactive Ad-hoc Queries
 Run single queries with a **Data Preview** and interactive options for naming and formats:
 ```bash
-# ThinkingData (Default: China)
+# ThinkingData (Default: Global)
 python main.py --engine ta --file queries/adhoc_ta.sql
 
-# ThinkingData (Global)
-python main.py --engine ta --region global --file queries/adhoc_ta.sql
+# ThinkingData (China)
+python main.py --engine ta --region china --file queries/adhoc_ta.sql
 
-# AliCloud ODPS
-python main.py --engine odps --region global --file queries/adhoc_ali.sql
+# AliCloud ODPS (Default: Global)
+python main.py --engine odps --file queries/adhoc_ali.sql
 ```
 *Note: Interactive mode is automatically enabled for single engine runs.*
 
 ### 3. CLI Arguments
 - `--engine`: [ta, odps, holo]
-- `--region`: [china, global] (Default: china)
+- `--region`: [china, global] (Default: global)
 - `--file`: Path to SQL file.
 - `--sql`: Direct SQL string.
 - `--mailto`: Recipient emails (comma separated).

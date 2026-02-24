@@ -14,7 +14,7 @@ from src.utils.mailer import send_emails
 
 console = Console()
 
-def get_engine(engine_name, region="china"):
+def get_engine(engine_name, region="global"):
     if engine_name == "ta":
         from src.core.ta_engine import ThinkingDataEngine
         config = settings.TA_CREDENTIALS.get(region)
@@ -226,7 +226,7 @@ def main():
     parser = argparse.ArgumentParser(description="FiveCross Unified Data Client")
     # Single task arguments
     parser.add_argument("--engine", type=str, choices=["ta", "odps", "holo"], help="Data engine to use")
-    parser.add_argument("--region", type=str, choices=["china", "global"], default="china", help="Region for Ali engines")
+    parser.add_argument("--region", type=str, choices=["china", "global"], default="global", help="Region for engines")
     parser.add_argument("--sql", type=str, help="Direct SQL statement")
     parser.add_argument("--file", type=str, help="Path to SQL file")
     parser.add_argument("--mailto", type=str, help="Recipient emails (comma separated)")
