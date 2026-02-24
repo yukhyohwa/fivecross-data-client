@@ -1,0 +1,15 @@
+-- MAILTO: recipient@example.com
+/*
+================================================================================
+Engine: ThinkingData (Trino/Presto)
+Description: Template for ThinkingData SQL queries.
+================================================================================
+*/
+
+SELECT 
+    "#user_id",
+    "#event_name",
+    "#event_time"
+FROM ta.v_event_10
+WHERE "$part_date" >= CURRENT_DATE - INTERVAL '7' DAY
+LIMIT 100;

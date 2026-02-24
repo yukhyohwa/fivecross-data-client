@@ -1,0 +1,15 @@
+[
+    {
+        "name": "TA_Lucky_Bag_Report",
+        "engine": "ta",
+        "file": "queries/ta_adhoc.sql",
+        "mailto": "shawnlu91@gmail.com"
+    },
+    {
+        "name": "Ali_Inventory_Report",
+        "engine": "odps",
+        "region": "global",
+        "sql": "SELECT * FROM inventory_table LIMIT 100",
+        "mailto": "shawnlu91@gmail.com"
+    }
+]
