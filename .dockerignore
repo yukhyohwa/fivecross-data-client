@@ -1,0 +1,14 @@
+.git
+.gitmodules
+queries/sql-lib
+ta_session/
+output/
+venv/
+__pycache__/
+*.pyc
+.env
+.idea
+.vscode
+*.xlsx
+*.csv
+*.log
