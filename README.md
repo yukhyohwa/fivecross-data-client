@@ -64,6 +64,16 @@ python main.py --engine ta --file queries/sql-lib/games/slam_dunk/maxcompute/act
 python main.py --engine odps --sql "SELECT count(*) FROM ods_log_login WHERE day='20240101'"
 ```
 
+### Log Seeker (Tool)
+Quickly locate specific IDs within massive local CSV logs:
+```bash
+# Search for specific IDs in the latest download
+python tools/log_seek.py 78128243 90000730
+
+# Search in a specific file
+python tools/log_seek.py 78128243 --path output/my_huge_log.csv
+```
+
 ### Scheduled Multi-Tasks
 Edit `tasks/scheduled_multi_tasks.json` and run:
 ```bash
