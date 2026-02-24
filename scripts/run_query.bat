@@ -6,25 +6,15 @@ echo ========================================
 echo   FiveCross Unified Data Client
 echo ========================================
 echo.
-echo Select Engine:
-echo 1. ThinkingData (TA)
-echo 2. AliCloud ODPS
-echo 3. AliCloud Hologres
+echo [FiveCross] Executing Scheduled Multi-Tasks...
+echo Tasks file: tasks\scheduled_multi_tasks.json
 echo.
 
-set /p choice="Enter choice (1-3, default 1): "
-
-if "%choice%"=="2" (
-    echo [FiveCross] Running AliCloud ODPS Report...
-    python main.py --engine odps
-) else if "%choice%"=="3" (
-    echo [FiveCross] Running AliCloud Hologres Report...
-    python main.py --engine holo
-) else (
-    echo [FiveCross] Running ThinkingData Report...
-    python main.py --engine ta
-)
+:: Using the explicit Python path from your working environment
+"C:\ProgramData\miniconda3\python.exe" main.py --task tasks/scheduled_multi_tasks.json
 
 echo.
-echo Task Completed.
+echo ========================================
+echo   Process Finished.
+echo ========================================
 pause

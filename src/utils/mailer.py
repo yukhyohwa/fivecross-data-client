@@ -12,7 +12,7 @@ from typing import List, Optional
 from src.utils.logger import logger
 
 
-def send_email_with_attachment(
+def send_emails(
     smtp_server: str,
     smtp_port: int,
     sender_email: str,
@@ -20,10 +20,10 @@ def send_email_with_attachment(
     recipient_emails: List[str],
     subject: str,
     body: str,
-    attachment_path: Optional[str] = None
+    attachment_paths: List[str] = []
 ) -> bool:
     """
-    Send an email with optional attachment via SMTP.
+    Send an email with multiple optional attachments via SMTP.
     """
     if not recipient_emails:
         logger.warning("No recipient emails specified, skipping email send")
@@ -41,18 +41,19 @@ def send_email_with_attachment(
         # Add body
         message.attach(MIMEText(body, 'plain', 'utf-8'))
         
-        # Add attachment if provided
-        if attachment_path and os.path.exists(attachment_path):
-            filename = os.path.basename(attachment_path)
-            with open(attachment_path, 'rb') as f:
-                part = MIMEBase('application', 'octet-stream')
-                part.set_payload(f.read())
-                encoders.encode_base64(part)
-                part.add_header('Content-Disposition', f'attachment; filename={filename}')
-                message.attach(part)
-            logger.info(f"Attached file: {filename}")
-        elif attachment_path:
-            logger.warning(f"Attachment not found: {attachment_path}")
+        # Add attachments
+        for path in attachment_paths:
+            if path and os.path.exists(path):
+                filename = os.path.basename(path)
+                with open(path, 'rb') as f:
+                    part = MIMEBase('application', 'octet-stream')
+                    part.set_payload(f.read())
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', f'attachment; filename="{filename}"')
+                    message.attach(part)
+                logger.info(f"Attached file: {filename}")
+            elif path:
+                logger.warning(f"Attachment not found: {path}")
         
         # Connect and send
         if smtp_port == 465:
