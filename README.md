@@ -2,116 +2,82 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10+-blue.svg" alt="Python Version">
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg" alt="Platform">
+  <img src="https://img.shields.io/badge/Docker-Supported-blue?logo=docker" alt="Docker">
   <img src="https://img.shields.io/badge/Engines-TA%20%7C%20ODPS%20%7C%20Holo-orange.svg" alt="Engines">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
-  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+  <img src="https://img.shields.io/badge/Security-Protected-green.svg" alt="Security">
 </p>
 
-A powerful and unified data extraction framework for ThinkingData (TA), AliCloud ODPS (MaxCompute), and Hologres. Designed for both quick ad-hoc analysis and scheduled multi-task reporting.
+A powerful and unified data extraction framework for ThinkingData (TA), AliCloud ODPS (MaxCompute), and Hologres. This project is the evolved version of `ali-data-client` and `thinking-data-client`, integrated into a professional "Data Worker" service.
 
 ## 🌟 Key Features
 
-- **Multi-Engine Support**: 
-  - `ta`: ThinkingData (Supports **China** and **Global** regions with auto-login).
-  - `odps`: AliCloud MaxCompute (Supports China and Global regions).
-  - `holo`: AliCloud Hologres (Postgres-compatible).
-- **Flexible Workflows**:
-  - **Scheduled Tasks**: Define multiple queries in a single JSON file and run them all at once.
-  - **Ad-hoc Queries**: Powerful CLI for single queries with data preview and interactive download options.
-- **Advanced Export (xlsx, csv, txt, json)**:
-  - Supports multiple formats per task.
-  - Automatic format conversion for raw downloads (e.g., TA's CSV to Excel).
-- **Intelligent Emailing**:
-  - Send reports with multiple attachments to multiple recipients.
-  - Parse recipients directly from SQL comments (`-- MAILTO: ...`).
-- **Robustness**:
-  - Smart login mechanism (Auto-fill + Enter fallback) for ThinkingData.
-  - Session persistence via persistent browser context.
-  - Debug screenshots and logs on failure.
+- **Multi-Engine Support**: ThinkingData (Global & China), AliCloud MaxCompute, and Hologres.
+- **Unified Logic**: One client for all company data platforms.
+- **Private SQL Library**: Securely integrated via Git Submodules (keeps business logic separate from tool code).
+- **One-Click Setup**: Automated environment initialization for local and containerized environments.
+- **Intelligent Export**: Automatic format conversion (Excel, CSV, JSON) and email delivery.
 
-## 🛠 Setup
+## 🛠 Setup & Initialization
 
-1. **Environment Preparation** (Recommended: Python 3.10+):
-   ```bash
-   pip install -r requirements.txt
-   playwright install chromium
-   ```
+### 1. Local Environment (Windows)
+We provide a one-click setup script to handle Python VENV, dependencies, and Playwright drivers.
+1.  **Clone the project**:
+    ```bash
+    git clone --recursive https://github.com/yukhyohwa/fivecross-data-client.git
+    cd fivecross-data-client
+    ```
+2.  **Run Setup**:
+    Double-click `setup.bat` or run:
+    ```powershell
+    .\setup.bat
+    ```
+3.  **Configure Credentials**:
+    Edit the newly created `.env` file with your platform credentials.
 
-2. **Configuration**:
-   - Create a `.env` file based on `.env.example`.
-   - **ThinkingData**: Set `TA_USER_CN`/`TA_PASS_CN` for China and `TA_USER_GLOBAL`/`TA_PASS_GLOBAL` for Global.
-   - **AliCloud**: Ensure `ALIYUN_AK_CN`/`ALIYUN_SK_CN` and `ALIYUN_AK_OVERSEAS`/`ALIYUN_SK_OVERSEAS` are set.
-   - Set `USER_DATA_DIR` to maintain browser sessions.
+### 2. Docker (Containerized)
+Ideal for scheduled tasks on Linux servers.
+```bash
+# Build
+docker build -t fivecross-client .
+
+# Run
+docker run --env-file .env fivecross-client --engine ta --sql "SELECT ..."
+```
+
+## 📂 Project Structure
+
+- `src/core/`: Engine logic (TA, ODPS, Holo).
+- `queries/sql-lib/`: **[Private Submodule]** The shared internal SQL library.
+- `ta_session/`: Local browser session storage (ignored by git).
+- `output/`: Generated reports and debug snapshots.
+- `setup.bat`: One-click initialization script.
+- `Dockerfile`: Container definition.
 
 ## 📖 Usage
 
-### 1. One-Click Scheduled Tasks (Recommended)
-Simply edit `tasks/scheduled_multi_tasks.json` to define your tasks, then run:
+### Ad-hoc Queries
 ```bash
-# Via script
-.\scripts\run_query.bat
+# Using the integrated SQL library
+python main.py --engine ta --file queries/sql-lib/games/slam_dunk/maxcompute/active_users.sql
 
-# Via command line
+# Direct SQL strings
+python main.py --engine odps --sql "SELECT count(*) FROM ods_log_login WHERE day='20240101'"
+```
+
+### Scheduled Multi-Tasks
+Edit `tasks/scheduled_multi_tasks.json` and run:
+```bash
 python main.py --task tasks/scheduled_multi_tasks.json
 ```
 
-### 2. Interactive Ad-hoc Queries
-Run single queries with a **Data Preview** and interactive options for naming and formats:
-```bash
-# ThinkingData (Default: Global)
-python main.py --engine ta --file queries/adhoc_ta.sql
-
-# ThinkingData (China)
-python main.py --engine ta --region china --file queries/adhoc_ta.sql
-
-# AliCloud ODPS (Default: Global)
-python main.py --engine odps --file queries/adhoc_ali.sql
-```
-*Note: Interactive mode is automatically enabled for single engine runs.*
-
-### 3. CLI Arguments
-- `--engine`: [ta, odps, holo]
-- `--region`: [china, global] (Default: global)
-- `--file`: Path to SQL file.
-- `--sql`: Direct SQL string.
-- `--mailto`: Recipient emails (comma separated).
-- `--formats`: Output formats (e.g., `xlsx,csv`).
-- `--show`: Display browser (TA engine only).
-- `--login`: Force login flow (TA engine only).
-
-## 📂 Task Configuration (JSON)
-Tasks are defined in `tasks/scheduled_multi_tasks.json`:
-```json
-[
-  {
-    "name": "Daily_China_Stats",
-    "engine": "ta",
-    "region": "china",
-    "file": "queries/daily_stats.sql",
-    "mailto": "boss@example.com",
-    "formats": ["xlsx"]
-  },
-  {
-    "name": "Daily_Global_Stats",
-    "engine": "ta",
-    "region": "global",
-    "file": "queries/global_stats.sql",
-    "formats": ["csv"]
-  }
-]
-```
+## 🔒 Security & Privacy
+- **.env**: Never committed to Git. Local credentials stay local.
+- **submodules**: The `sql-lib` is a private repository. External users cannot access your SQL logic even if they have this tool's code.
 
 ## 📝 SQL Directives
-You can specify recipients directly in your SQL file:
+Add recipients directly in your SQL files:
 ```sql
--- MAILTO: user1@example.com, user2@example.com
+-- MAILTO: analytics@example.com, boss@example.com
 SELECT * FROM ...
 ```
 
-## 📁 Project Structure
-- `src/core/`: Engine logic (ThinkingData, AliCloud).
-- `src/utils/`: Exporter, Mailer, and Logger utilities.
-- `tasks/`: Multi-task configuration files.
-- `output/`: Generated reports and debug logs.
-- `scripts/`: Batch scripts for quick execution.
