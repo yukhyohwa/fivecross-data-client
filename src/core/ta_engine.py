@@ -241,42 +241,52 @@ class ThinkingDataEngine(BaseEngine):
         # 4. Click Login or Press Enter
         page.wait_for_timeout(1000)
         
-        # Try finding the login button by text or class and clicking it
-        login_btn_selectors = [
-            'button:has-text("登录")',
-            'button:has-text("Login")',
-            '.ant-btn-primary',
-            'div:has-text("登录")',
-            'span:has-text("登录")'
-        ]
-        
         button_clicked = False
-        for selector in login_btn_selectors:
-            try:
-                candidate = page.query_selector(selector)
-                if candidate and candidate.is_visible():
-                    logger.info(f"Attempting to click login button: {selector}")
-                    candidate.click()
-                    button_clicked = True
-                    break
-            except:
-                continue
-        
-        # Always try Enter key as the most robust way to submit forms
+        try:
+            # Try Playwright's most robust locators first
+            login_btn = page.get_by_role("button", name="登录").or_(page.get_by_text("登录", exact=True)).first
+            if login_btn.is_visible():
+                logger.info("Clicking '登录' button via robust locator...")
+                login_btn.click()
+                button_clicked = True
+        except:
+            pass
+
+        if not button_clicked:
+            # Fallback to secondary selectors
+            login_btn_selectors = [
+                'button:has-text("登录")',
+                '.ant-btn-primary',
+                'button[type="submit"]',
+                'div.ant-btn-primary'
+            ]
+            for selector in login_btn_selectors:
+                try:
+                    candidate = page.query_selector(selector)
+                    if candidate and candidate.is_visible():
+                        logger.info(f"Attempting to click login button: {selector}")
+                        candidate.click()
+                        button_clicked = True
+                        break
+                except: continue
+
+        # Ensure focus is on password field before pressing Enter as a final fallback
         page.wait_for_timeout(1000)
-        logger.info("Sending Enter key to ensure submission...")
+        logger.info("Performing final submission check (Enter key fallback)...")
+        pass_input.focus()
         page.keyboard.press("Enter")
             
         # 5. Wait for outcome (Resilient strategy)
         try:
-            # Wait for the login button to disappear or the URL to change
+            # Fix: CSS selector :has-text() is a Playwright extension and doesn't work in native document.querySelector
             page.wait_for_function("""() => {
-                const btn = document.querySelector('button:has-text("登录"), button:has-text("Login")');
-                return !btn || !btn.isConnected || !window.location.href.toLowerCase().includes('login');
+                const buttons = Array.from(document.querySelectorAll('button, .ant-btn'));
+                const hasLoginButton = buttons.some(btn => btn.innerText.includes('登录') || btn.innerText.includes('Login'));
+                return !hasLoginButton || !window.location.href.toLowerCase().includes('login');
             }""", timeout=20000)
             logger.info("Login form submitted successfully.")
         except Exception as e:
-            logger.warn(f"Wait for login transition timed out, but proceeding anyway: {e}")
+            logger.warn(f"Wait for login transition timed out, but proceeding anyway.")
             
         # Final safety sleep for redirection
         page.wait_for_timeout(3000)
