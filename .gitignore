@@ -1,15 +1,55 @@
+# --- Python ---
 __pycache__/
 *.py[cod]
 *$py.class
-ta_session/
-output/
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# --- Environment & Credentials ---
 .env
+.env.test
+.env.local
+ta_session/
+
+# --- IDEs ---
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- System ---
 .DS_Store
+Thumbs.db
+
+# --- Project Specific ---
+output/
 *.xlsx
 *.csv
 *.log
 *.txt
-.idea/
-.vscode/
-queries/adhoc_*.sql
+
+# --- Query Files ---
+# Ignore actual adhoc scripts used for execution
+queries/adhoc_ta.sql
+queries/adhoc_ali.sql
+
+# --- Exceptions ---
+# Explicitly keep examples and gitkeep
+!*.example
 !.gitkeep
