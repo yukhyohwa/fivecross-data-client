@@ -92,7 +92,8 @@ class Settings:
     TASKS_DIR = os.path.join(BASE_DIR, "tasks")
     TEMPLATES_DIR = os.path.join(TASKS_DIR, "templates")
     CONFIGS_DIR = os.path.join(TASKS_DIR, "configs")
-    PREDICT_DIR = os.path.join(CONFIGS_DIR, "predict")
+    JOBS_DIR = os.path.join(TASKS_DIR, "jobs")
+    PREDICT_DIR = os.path.join(TASKS_DIR, "predict")
     PREDICT_INPUT_DIR = os.path.join(PREDICT_DIR, "input")
 
     # --- Email Config ---
@@ -105,8 +106,8 @@ class Settings:
         # 确保目录存在
         dirs_to_create = [
             self.INPUT_DIR, self.OUTPUT_DIR,
-            self.TEMPLATES_DIR, self.CONFIGS_DIR, self.PREDICT_INPUT_DIR,
-            self.TA_SESSION_DIR
+            self.TEMPLATES_DIR, self.CONFIGS_DIR, self.JOBS_DIR,
+            self.PREDICT_INPUT_DIR, self.TA_SESSION_DIR
         ]
         for path in dirs_to_create:
             os.makedirs(path, exist_ok=True)

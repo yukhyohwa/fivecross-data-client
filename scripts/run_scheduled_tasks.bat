@@ -12,7 +12,7 @@ if exist venv\Scripts\activate (
 echo [%date% %time%] Starting scheduled data tasks...
 
 :: 运行主程序加载定时任务 JSON
-:: 注意：main.py 现在会自动根据文件名在 tasks/configs/scheduled 下搜索
+:: 注意：main.py 现在会自动根据文件名在 tasks/configs 下搜索
 python main.py fetch --task scheduled_multi_tasks.json
 
 echo [%date% %time%] Tasks completed.

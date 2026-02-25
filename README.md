@@ -99,7 +99,7 @@ Predict future growth based on historical trends of New (NUU), Old (OUU), and Re
   | `ruu`                | int      | Count of Returning User Units.                             |
   | `nuu_retention_rate` | float    | (Optional) Historical retention rates for better accuracy. |
 
-*Note: The engine searches for input files in `data/input/`, `tasks/configs/predict/input/`, and `data/output/` sequentially.*
+*Note: The engine searches for input files in `data/input/`, `tasks/predict/input/`, and `data/output/` sequentially.*
 
 #### Log Seeker (ID Lookup Tool)
 

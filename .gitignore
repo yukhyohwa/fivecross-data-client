@@ -30,10 +30,10 @@ Thumbs.db
 # --- Task Execution (Ignore runtime configs) ---
 # We keep templates, but ignore user-generated ad-hoc tasks
 tasks/configs/*.json
-tasks/configs/**/*.sql
-!tasks/configs/**/*.example
+tasks/adhoc/*.sql
+!tasks/adhoc/*.example
+tasks/predict/input/
 tasks/templates/
-tasks/predict/
 # Note: tasks/templates is a submodule, Git handles it via .gitmodules
 
 # --- Exceptions ---
