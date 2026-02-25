@@ -231,7 +231,11 @@ def main():
             if os.path.exists(task_path):
                 with open(task_path, 'r', encoding='utf-8') as f:
                     tasks = json.load(f)
-                    for t in (tasks if isinstance(tasks, list) else [tasks]): run_fetch_task(t)
+                    for t in (tasks if isinstance(tasks, list) else [tasks]):
+                        if t.get("paused", False):
+                            logger.info(f"⏭  Skipping paused task: {t.get('name', 'Unknown')}")
+                            continue
+                        run_fetch_task(t)
         else:
             # Single CLI runs (ad-hoc) are interactive by default
             run_fetch_task(vars(args), interactive=True)

@@ -1,0 +1,34 @@
+[
+    {
+        "name": "ta_test_sql",
+        "engine": "ta",
+        "sql": "SELECT 1=1",
+        "mailto": "xiaohua.lu@5xgames.com",
+        "formats": [
+            "csv"
+        ],
+        "paused": true
+    },
+    {
+        "name": "sd_tc_new_and_latent_return_30d_ltv_stats",
+        "engine": "odps",
+        "region": "global",
+        "file": "sd_tc_new_and_latent_return_30d_ltv_stats.sql"
+    },
+    {
+        "name": "sd_tc_new_and_latent_return_60d_ltv_stats",
+        "engine": "odps",
+        "region": "global",
+        "file": "sd_tc_new_and_latent_return_60d_ltv_stats.sql"
+    },
+    {
+        "name": "sd_tc_new_and_latent_return_90d_ltv_stats",
+        "engine": "odps",
+        "region": "global",
+        "file": "sd_tc_new_and_latent_return_90d_ltv_stats.sql",
+        "formats": [
+            "xlsx",
+            "txt"
+        ]
+    }
+]
