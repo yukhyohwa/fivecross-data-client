@@ -30,5 +30,55 @@
             "xlsx",
             "txt"
         ]
+    },
+    {
+        "name": "kb_tc_march_2026_01_player_output",
+        "engine": "ta",
+        "region": "global",
+        "file": "jobs/kb_tc_march_2026/01_player_output.sql",
+        "formats": [
+            "xlsx"
+        ],
+        "paused": true
+    },
+    {
+        "name": "kb_tc_march_2026_02_court_sales",
+        "engine": "ta",
+        "region": "global",
+        "file": "jobs/kb_tc_march_2026/02_court_sales.sql",
+        "formats": [
+            "xlsx"
+        ],
+        "paused": true
+    },
+    {
+        "name": "kb_tc_march_2026_03_chest_output",
+        "engine": "ta",
+        "region": "global",
+        "file": "jobs/kb_tc_march_2026/03_chest_output.sql",
+        "formats": [
+            "xlsx"
+        ],
+        "paused": true
+    },
+    {
+        "name": "kb_tc_march_2026_04_nba_anniv_users",
+        "engine": "ta",
+        "region": "global",
+        "file": "jobs/kb_tc_march_2026/04_nba_anniv_users.sql",
+        "formats": [
+            "xlsx"
+        ],
+        "paused": true
+    },
+    {
+        "name": "kb_tc_march_2026_05_badge_gacha_dau",
+        "engine": "ta",
+        "region": "global",
+        "file": "jobs/kb_tc_march_2026/05_badge_gacha_dau.sql",
+        "formats": [
+            "xlsx"
+        ],
+        "paused": true
     }
 ]
