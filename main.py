@@ -83,6 +83,7 @@ def run_fetch_task(task_config, interactive=False):
     formats = task_config.get("formats", ["xlsx"])
     task_name = task_config.get("name", f"{engine_name}_export")
     mailto = task_config.get("mailto")
+    show_browser = task_config.get("show", False)
 
     try:
         engine = get_engine(engine_name, region)
@@ -106,7 +107,10 @@ def run_fetch_task(task_config, interactive=False):
             return
 
         logger.info(f"🚀 Fetching: {task_name}...")
-        results = engine.fetch(sql_content)
+        if engine_name == "ta":
+            results = engine.fetch(sql_content, headless=not show_browser)
+        else:
+            results = engine.fetch(sql_content)
 
         if results is not None:
             final_file_paths = []
@@ -197,6 +201,7 @@ def main():
     fetch_parser.add_argument("--file", help="SQL file name")
     fetch_parser.add_argument("--task", help="JSON task file")
     fetch_parser.add_argument("--interactive", action="store_true", default=False)
+    fetch_parser.add_argument("--show", action="store_true", default=False, help="Show browser (TA only)")
     fetch_parser.add_argument("--mailto", help="Comma separated emails")
 
     predict_parser = subparsers.add_parser("predict", help="Run analytics models")

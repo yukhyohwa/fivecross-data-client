@@ -41,6 +41,10 @@ The CLI supports two primary modes: `fetch` (Data Extraction) and `predict` (Ana
 FCDC features a recursive search engine that locates files automatically within the `tasks/` directory.
 
 ```bash
+# Quick Ad-hoc execution from the designated adhoc folder
+python main.py fetch --engine ta --region global --file adhoc_ta.sql
+python main.py fetch --engine odps --region global --file adhoc_ali.sql
+
 # Execute a specific SQL file from templates/
 python main.py fetch --engine ta --file kb_jp_insignia_gacha.sql --region global
 
@@ -50,9 +54,8 @@ python main.py fetch --task scheduled_multi_tasks.json
 # Interactive mode (provides data preview before export)
 python main.py fetch --engine odps --file ltv_stats.sql --interactive
 
-# Quick Ad-hoc execution from the designated adhoc folder
-python main.py fetch --engine ta --region global --file adhoc_ta.sql
-python main.py fetch --engine odps --region global --file adhoc_ali.sql
+# Show browser window during execution (TA only)
+python main.py fetch --engine ta --file adhoc_ta.sql --show
 ```
 
 #### Predictive Analytics
@@ -60,41 +63,41 @@ python main.py fetch --engine odps --region global --file adhoc_ali.sql
 Run advanced models against existing datasets. FCDC automatically validates and cleans data before processing.
 
 ##### 1. LTV Prediction (Life Time Value)
+
 Professional projection using power-function retention fitting and ARPU decay models.
 
-*   **Command:**
-    ```bash
-    python main.py predict ltv --file history_stats.csv --ecpnu 55.0 --net_rate 0.35
-    ```
-*   **Arguments:**
-    *   `--file`: Path to source data (supports `.csv`, `.xlsx`).
-    *   `--ecpnu`: Acquisition cost per new user (CPA).
-    *   `--net_rate`: Revenue sharing rate (e.g., 0.35 for 35%).
-*   **Required Data Format:**
-    | Column | Type | Description |
-    | :--- | :--- | :--- |
-    | `num_day` | int | The day index (1, 2, 3... 90). |
-    | `actual_rr` | float | Actual retention rate for that day (0.0 to 1.0). |
-    | `actual_arpu` | float | Actual ARPU for that day. |
+* **Command:**
+  ```bash
+  python main.py predict ltv --file history_stats.csv --ecpnu 55.0 --net_rate 0.35
+  ```
+* **Arguments:**
+  * `--file`: Path to source data (supports `.csv`, `.xlsx`).
+  * `--ecpnu`: Acquisition cost per new user (CPA).
+  * `--net_rate`: Revenue sharing rate (e.g., 0.35 for 35%).
+* **Required Data Format:**| Column          | Type  | Description                                      |
+  | :-------------- | :---- | :----------------------------------------------- |
+  | `num_day`     | int   | The day index (1, 2, 3... 90).                   |
+  | `actual_rr`   | float | Actual retention rate for that day (0.0 to 1.0). |
+  | `actual_arpu` | float | Actual ARPU for that day.                        |
 
 ##### 2. MAU Forecasting (Monthly Active Users)
+
 Predict future growth based on historical trends of New (NUU), Old (OUU), and Returning (RUU) users.
 
-*   **Command:**
-    ```bash
-    python main.py predict mau --file monthly_data.xlsx --months 12 --growth 1.2
-    ```
-*   **Arguments:**
-    *   `--months`: Number of months to forecast (default: 12).
-    *   `--growth`: Growth factor applied to New Users (default: 1.0).
-*   **Required Data Format:**
-    | Column | Type | Description |
-    | :--- | :--- | :--- |
-    | `data_date` | date/str | The month identifier (e.g., `2024-01-01`). |
-    | `nuu` | int | Count of New User Units. |
-    | `ouu` | int | Count of Old User Units. |
-    | `ruu` | int | Count of Returning User Units. |
-    | `nuu_retention_rate` | float | (Optional) Historical retention rates for better accuracy. |
+* **Command:**
+  ```bash
+  python main.py predict mau --file monthly_data.xlsx --months 12 --growth 1.2
+  ```
+* **Arguments:**
+  * `--months`: Number of months to forecast (default: 12).
+  * `--growth`: Growth factor applied to New Users (default: 1.0).
+* **Required Data Format:**| Column                 | Type     | Description                                                |
+  | :--------------------- | :------- | :--------------------------------------------------------- |
+  | `data_date`          | date/str | The month identifier (e.g.,`2024-01-01`).                |
+  | `nuu`                | int      | Count of New User Units.                                   |
+  | `ouu`                | int      | Count of Old User Units.                                   |
+  | `ruu`                | int      | Count of Returning User Units.                             |
+  | `nuu_retention_rate` | float    | (Optional) Historical retention rates for better accuracy. |
 
 *Note: The engine searches for input files in `data/input/`, `tasks/configs/predict/input/`, and `data/output/` sequentially.*
 
