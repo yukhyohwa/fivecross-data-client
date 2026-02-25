@@ -31,6 +31,7 @@ Thumbs.db
 # We keep templates, but ignore user-generated ad-hoc tasks
 tasks/configs/*.json
 tasks/adhoc/*.sql
+tasks/jobs/*.sql
 !tasks/adhoc/*.example
 tasks/predict/input/
 tasks/templates/
