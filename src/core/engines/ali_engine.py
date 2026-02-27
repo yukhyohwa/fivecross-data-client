@@ -1,5 +1,4 @@
 import pandas as pd
-import psycopg2
 from odps import ODPS
 from src.core.engines.base_engine import BaseEngine
 from src.config import settings, DBConfig
@@ -26,6 +25,12 @@ class HoloEngine(BaseEngine):
         self.config = config
 
     def fetch(self, sql: str, **kwargs) -> pd.DataFrame:
+        try:
+            import psycopg2
+        except ImportError:
+            logger.error("Module 'psycopg2' not found. Please install psycopg2-binary.")
+            raise
+
         logger.info(f"Connecting to Hologres: {self.config.host}...")
         conn = psycopg2.connect(
             host=self.config.host, 

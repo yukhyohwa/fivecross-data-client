@@ -9,6 +9,7 @@ if exist venv\Scripts\activate (
     call venv\Scripts\activate
 )
 
+set PYTHONIOENCODING=utf-8
 echo [%date% %time%] Starting scheduled data tasks...
 
 :: 运行主程序加载定时任务 JSON
