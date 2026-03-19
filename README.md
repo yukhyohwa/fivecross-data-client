@@ -155,7 +155,41 @@ FCDC automatically parses email recipients from two sources:
 
 Leverage the **Git Submodule** in `tasks/templates/` to share common logic across projects. You can store your "ID Mapping" or "Static Metadata" SQLs in `common/` for reuse in multiple game-specific tasks.
 
-### 5. Windows Automation (Task Scheduler)
+### 5. ThinkingData (TA) Login & Region Management
+
+The TA engine supports automated login and session persistence across multiple regions.
+
+#### Multi-Region Support
+Specify the target TA instance using the `--region` flag:
+- `global`: Connects to the Global TA instance (e.g., Aliyun Hong Kong).
+- `china`: Connects to the China TA instance.
+
+#### Automated Login & Session Persistence
+- **Session Storage**: Browser sessions are saved in the `ta_session/` directory, valid for up to 7 days.
+- **Auto-Recovery**: If a session expires, the engine automatically:
+    1. Clears the stale session data.
+    2. Performs a fresh login using credentials from `.env`.
+    3. Re-establishes the 7-day session.
+- **Manual Login**: If you need to force a fresh login or establish a session for the first time:
+  ```bash
+  python main.py --login --region global
+  ```
+
+#### Required Configuration (.env)
+Ensure your `.env` file contains the correct credentials for each region:
+```env
+# Global TA
+TA_URL_GLOBAL=http://...
+TA_USER_GLOBAL=your_user
+TA_PASS_GLOBAL=your_password
+
+# China TA
+TA_URL_CN=https://...
+TA_USER_CN=your_user
+TA_PASS_CN=your_password
+```
+
+### 6. Windows Automation (Task Scheduler)
 
 To fully automate your workflow:
 
