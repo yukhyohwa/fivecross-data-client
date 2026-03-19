@@ -213,11 +213,12 @@ def main():
     predict_parser.add_argument("--growth", type=float, default=1.0, help="For MAU: Growth factor for NUU")
 
     parser.add_argument("--login", action="store_true")
+    parser.add_argument("--region", default="global", help="Region for --login (global or china)")
 
     args = parser.parse_args()
 
     if args.login:
-        get_engine("ta", args.region or "global").login(headless=False)
+        get_engine("ta", getattr(args, 'region', 'global')).login(headless=False)
         return
 
     if args.command == "fetch":
