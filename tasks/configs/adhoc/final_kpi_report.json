@@ -1,0 +1,7 @@
+{
+    "name": "final_kpi_report_v2",
+    "engine": "holo",
+    "region": "global",
+    "file": "final_kpi_v2.sql",
+    "formats": ["csv"]
+}

@@ -1,0 +1,7 @@
+{
+    "name": "manual_comp",
+    "engine": "holo",
+    "region": "global",
+    "sql": "SELECT day / 100 as month, user_type, COUNT(DISTINCT lcm_id) as users FROM g63002013.daily_lcx_user_info WHERE day >= 20250301 AND app_id = 63002013 AND is_water = '不是水' GROUP BY 1, 2",
+    "formats": ["csv"]
+}

@@ -1,0 +1,7 @@
+{
+    "name": "sd_gl_decline_analysis_oct",
+    "engine": "holo",
+    "region": "global",
+    "sql": "SELECT LEFT(CAST(a.day AS TEXT), 6) as month, r.country_name, COUNT(DISTINCT a.lcm_id) as dau FROM g63002013.lcx_user_active a LEFT JOIN g63002013.lcx_user_reg r ON a.lcm_id = r.lcm_id WHERE a.day BETWEEN 20250701 AND 20251231 GROUP BY 1, 2 ORDER BY 1, 3 DESC;",
+    "formats": ["csv"]
+}

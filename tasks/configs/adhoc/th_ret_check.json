@@ -1,0 +1,7 @@
+{
+    "name": "th_retention_hypo_check",
+    "engine": "holo",
+    "region": "global",
+    "sql": "WITH reg AS (SELECT lcm_id, day as reg_day, country_name FROM g63002013.lcx_user_reg WHERE day >= 20250301 AND country_name IN ('泰国', '菲律宾', '美国')), act AS (SELECT lcm_id, day as act_day FROM g63002013.lcx_user_active WHERE day >= 20250301) SELECT LEFT(CAST(r.reg_day AS TEXT), 6) as reg_month, r.country_name, COUNT(DISTINCT r.lcm_id) as nuu, ROUND(COUNT(DISTINCT CASE WHEN a.act_day = CAST(to_char(to_timestamp(CAST(reg_day AS TEXT), 'YYYYMMDD') + interval '1 day', 'YYYYMMDD') AS INT) THEN r.lcm_id END) * 100.0 / NULLIF(COUNT(DISTINCT r.lcm_id), 0), 2) as d1_rr FROM reg r LEFT JOIN act a ON r.lcm_id = a.lcm_id GROUP BY 1, 2 ORDER BY 1, 2;",
+    "formats": ["csv"]
+}

@@ -1,0 +1,7 @@
+{
+    "name": "with_test",
+    "engine": "holo",
+    "region": "global",
+    "sql": "WITH t as (SELECT 1 as x) SELECT * FROM t",
+    "formats": ["csv"]
+}

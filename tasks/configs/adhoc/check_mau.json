@@ -1,0 +1,7 @@
+{
+    "name": "check_mau",
+    "engine": "holo",
+    "region": "global",
+    "sql": "SELECT LEFT(CAST(day AS TEXT), 6) as month, COUNT(DISTINCT lcm_id) as mau FROM g63002013.daily_lcx_user_info WHERE day >= 20250301 AND app_id = 63002013 AND is_water = '不是水' GROUP BY 1",
+    "formats": ["csv"]
+}
