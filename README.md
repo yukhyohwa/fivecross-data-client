@@ -210,3 +210,42 @@ git submodule update --remote --merge
 ## 🛠️ Configuration
 
 Manage your credentials and endpoints in the `.env` file at the project root. Refer to `.env.example` for the required schema.
+
+## ⚠️ Known Issues & Solutions
+
+### TA Engine: Monaco Editor Fails to Load Without `--show`
+
+**Symptom:**
+Running a TA fetch command without `--show` fails with a 30-second timeout:
+```
+ERROR  Execution failed: Page.wait_for_selector: Timeout 30000ms exceeded.
+       waiting for locator(".monaco-editor, ...")
+WARNING  No data found for preview.
+```
+Page title captured at failure is `加载中...` and any screenshot is pure white.
+
+**Root Cause:**
+The ThinkingData IDE is a heavy SPA that uses Monaco Editor (same engine as VS Code). This framework requires a **real browser rendering environment** to initialize:
+
+| Requirement | Headless Chromium | Headed Chromium (off-screen) |
+|---|---|---|
+| GPU rendering pipeline | ❌ Unavailable | ✅ Active |
+| `document.visibilityState` | ❌ Returns `"hidden"` | ✅ Returns `"visible"` |
+| `requestAnimationFrame` | ❌ Throttled / frozen | ✅ Normal 60fps |
+| Element layout dimensions | ❌ May return 0 | ✅ Calculated correctly |
+
+When any of these conditions are abnormal, the SPA's boot sequence stalls indefinitely at the loading screen. Adding `--show` works because it opens a real browser window that satisfies all requirements.
+
+**Solution (Already Applied):**
+The TA engine (`src/core/engines/ta_engine.py`) always uses **headed (non-headless) mode**, but positions the browser window off-screen at `(-10000, -10000)` so it is invisible to the user. This gives the SPA a fully functional rendering environment without disrupting your workflow.
+
+```python
+# ta_engine.py — key configuration
+headless=False,  # Always headed for reliable SPA rendering
+args=[
+    "--window-size=1920,1080",
+    "--window-position=-10000,-10000",  # Off-screen but fully rendered
+]
+```
+
+> **Note:** A Chrome process will appear in Task Manager during TA fetch operations. This is expected — the browser window is off-screen and will not appear on your display.
