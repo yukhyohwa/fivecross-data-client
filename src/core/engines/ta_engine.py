@@ -76,10 +76,12 @@ class ThinkingDataEngine(BaseEngine):
             element.click(force=True)
 
     def fetch(self, sql: str, **kwargs) -> list:
-        return self.run_sql_query(sql_text=sql, headless=kwargs.get('headless', True))
+        return self.run_sql_query(sql_text=sql, show_window=kwargs.get('headless', True) == False)
 
-    def run_sql_query(self, sql_text=None, headless=True, _retried=False):
-        """Run SQL via browser automation. Auto-clears stale session and retries once on login failure."""
+    def run_sql_query(self, sql_text=None, headless=True, show_window=False, _retried=False):
+        """Run SQL via browser automation. Always uses headed mode with off-screen window for reliable SPA rendering."""
+        # Headless Chromium cannot reliably render heavy JS SPAs (like ThinkingData IDE).
+        # We always use headed mode; if show_window=False, the window is positioned off-screen.
 
         class _NeedsFreshLogin(Exception):
             pass
@@ -90,11 +92,16 @@ class ThinkingDataEngine(BaseEngine):
             with sync_playwright() as p:
                 context = p.chromium.launch_persistent_context(
                     self.user_data_dir,
-                    headless=headless,
+                    headless=False,  # Always headed: headless mode cannot render the SPA reliably
                     slow_mo=100,
                     viewport={"width": 1920, "height": 1080},
                     user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    args=["--disable-blink-features=AutomationControlled"],
+                    args=[
+                        "--disable-blink-features=AutomationControlled",
+                        "--window-size=1920,1080",
+                        # Position window off-screen when not in show mode
+                        "--window-position=0,0" if show_window else "--window-position=-10000,-10000",
+                    ],
                     permissions=["clipboard-read", "clipboard-write"]
                 )
                 page = context.new_page()
@@ -118,6 +125,11 @@ class ThinkingDataEngine(BaseEngine):
 
                 logger.info(f"Opening IDE page: {self.sql_url}")
                 page.goto(self.sql_url)
+                # Wait for the SPA to finish loading (networkidle = no network requests for 500ms)
+                try:
+                    page.wait_for_load_state("networkidle", timeout=30000)
+                except:
+                    pass
 
                 try:
                     # Wait for login page or editor to appear
