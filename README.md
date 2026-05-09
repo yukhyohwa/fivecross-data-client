@@ -107,7 +107,7 @@ A high-performance utility to scan massive CSV logs for specific user IDs or ide
 
 ```bash
 # Automatically finds the latest CSV in data/output/ and searches for ID
-python tools\log_seek.py 30002074
+python tools\log_seek.py3010522
 
 # Search for multiple IDs
 python tools\log_seek.py ID1 ID2 ID3
@@ -160,23 +160,28 @@ Leverage the **Git Submodule** in `tasks/templates/` to share common logic acros
 The TA engine supports automated login and session persistence across multiple regions.
 
 #### Multi-Region Support
+
 Specify the target TA instance using the `--region` flag:
+
 - `global`: Connects to the Global TA instance (e.g., Aliyun Hong Kong).
 - `china`: Connects to the China TA instance.
 
 #### Automated Login & Session Persistence
+
 - **Session Storage**: Browser sessions are saved in the `ta_session/` directory, valid for up to 7 days.
 - **Auto-Recovery**: If a session expires, the engine automatically:
-    1. Clears the stale session data.
-    2. Performs a fresh login using credentials from `.env`.
-    3. Re-establishes the 7-day session.
+  1. Clears the stale session data.
+  2. Performs a fresh login using credentials from `.env`.
+  3. Re-establishes the 7-day session.
 - **Manual Login**: If you need to force a fresh login or establish a session for the first time:
   ```bash
   python main.py --login --region global
   ```
 
 #### Required Configuration (.env)
+
 Ensure your `.env` file contains the correct credentials for each region:
+
 ```env
 # Global TA
 TA_URL_GLOBAL=http://...
@@ -217,22 +222,24 @@ Manage your credentials and endpoints in the `.env` file at the project root. Re
 
 **Symptom:**
 Running a TA fetch command without `--show` fails with a 30-second timeout:
+
 ```
 ERROR  Execution failed: Page.wait_for_selector: Timeout 30000ms exceeded.
        waiting for locator(".monaco-editor, ...")
 WARNING  No data found for preview.
 ```
+
 Page title captured at failure is `加载中...` and any screenshot is pure white.
 
 **Root Cause:**
 The ThinkingData IDE is a heavy SPA that uses Monaco Editor (same engine as VS Code). This framework requires a **real browser rendering environment** to initialize:
 
-| Requirement | Headless Chromium | Headed Chromium (off-screen) |
-|---|---|---|
-| GPU rendering pipeline | ❌ Unavailable | ✅ Active |
-| `document.visibilityState` | ❌ Returns `"hidden"` | ✅ Returns `"visible"` |
-| `requestAnimationFrame` | ❌ Throttled / frozen | ✅ Normal 60fps |
-| Element layout dimensions | ❌ May return 0 | ✅ Calculated correctly |
+| Requirement                  | Headless Chromium       | Headed Chromium (off-screen) |
+| ---------------------------- | ----------------------- | ---------------------------- |
+| GPU rendering pipeline       | ❌ Unavailable          | ✅ Active                    |
+| `document.visibilityState` | ❌ Returns `"hidden"` | ✅ Returns `"visible"`     |
+| `requestAnimationFrame`    | ❌ Throttled / frozen   | ✅ Normal 60fps              |
+| Element layout dimensions    | ❌ May return 0         | ✅ Calculated correctly      |
 
 When any of these conditions are abnormal, the SPA's boot sequence stalls indefinitely at the loading screen. Adding `--show` works because it opens a real browser window that satisfies all requirements.
 
