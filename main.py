@@ -63,7 +63,7 @@ def display_preview(results, title="Data Preview"):
         return False
 
     console.print("\n" + "─" * 50)
-    console.print(f"[bold yellow]🔍 {title} (Top 10 Rows):[/bold yellow]\n")
+    console.print(f"[bold yellow][*] {title} (Top 10 Rows):[/bold yellow]\n")
 
     display_cols = list(df.columns[:10])
     table = Table(show_header=True, header_style="bold magenta", box=None, padding=(0, 2))
@@ -106,7 +106,7 @@ def run_fetch_task(task_config, interactive=False):
             logger.error(f"SQL content not found.")
             return
 
-        logger.info(f"🚀 Fetching: {task_name}...")
+        logger.info(f"[*] Fetching: {task_name}...")
         if engine_name == "ta":
             results = engine.fetch(sql_content, headless=not show_browser)
         else:
@@ -166,7 +166,7 @@ def run_predict_task(args):
 
     try:
         from src.core.services.analytics.validator import DataValidator
-        logger.info(f"🔮 Predicting {model_type.upper()}...")
+        logger.info(f"[*] Predicting {model_type.upper()}...")
         df_input = pd.read_csv(input_path) if input_path.endswith('.csv') else pd.read_excel(input_path)
         
         if model_type == "ltv":
@@ -234,7 +234,7 @@ def main():
                     tasks = json.load(f)
                     for t in (tasks if isinstance(tasks, list) else [tasks]):
                         if t.get("paused", False):
-                            logger.info(f"⏭  Skipping paused task: {t.get('name', 'Unknown')}")
+                            logger.info(f"[-] Skipping paused task: {t.get('name', 'Unknown')}")
                             continue
                         run_fetch_task(t)
         else:
