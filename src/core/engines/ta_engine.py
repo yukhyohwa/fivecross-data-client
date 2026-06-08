@@ -1,9 +1,14 @@
 import os
+import shutil
+import stat
 import time
 from playwright.sync_api import sync_playwright
 from src.core.engines.base_engine import BaseEngine
 from src.utils.logger import logger
 from src.config import settings
+
+class _BrowserLaunchFailed(Exception):
+    pass
 
 class ThinkingDataEngine(BaseEngine):
     """
@@ -18,53 +23,89 @@ class ThinkingDataEngine(BaseEngine):
         self.password = config.password
         self.user_data_dir = settings.TA_SESSION_DIR
 
-    def login(self, headless=False):
+    def _context_options(self, headless=False, show_window=False):
+        args = [
+            "--disable-blink-features=AutomationControlled",
+            "--window-size=1920,1080",
+        ]
+        if not headless:
+            args.append("--window-position=0,0" if show_window else "--window-position=-10000,-10000")
+
+        return {
+            "headless": headless,
+            "slow_mo": 100,
+            "viewport": {"width": 1920, "height": 1080},
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "args": args,
+            "permissions": ["clipboard-read", "clipboard-write"],
+        }
+
+    def _launch_persistent_context(self, chromium, headless=False, show_window=False):
+        os.makedirs(self.user_data_dir, exist_ok=True)
+        return chromium.launch_persistent_context(
+            self.user_data_dir,
+            **self._context_options(headless=headless, show_window=show_window)
+        )
+
+    def _reset_session_after_launch_error(self, exc):
+        logger.warning(f"Saved TA browser session failed to launch: {exc}")
+        logger.info("Clearing saved TA session and retrying browser launch once...")
+        self._clear_session()
+
+    def login(self, headless=False, _retried_launch=False):
         if not self.username or not self.password:
             logger.error("TA credentials missing.")
             return
 
-        with sync_playwright() as p:
-            context = p.chromium.launch_persistent_context(
-                self.user_data_dir,
-                headless=headless,
-                slow_mo=100,
-                viewport={"width": 1920, "height": 1080},
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                args=["--disable-blink-features=AutomationControlled"],
-                permissions=["clipboard-read", "clipboard-write"]
-            )
-            page = context.new_page()
-            logger.info(f"Navigating to login page: {self.base_url}")
-            page.goto(self.base_url)
-            
-            try:
-                page.wait_for_load_state("networkidle", timeout=10000)
-            except:
-                pass
-
-            is_login_page = "login" in page.url.lower() or \
-                           page.query_selector('input[type="password"]') or \
-                           page.query_selector('input[placeholder*="Password"]')
-
-            if is_login_page:
-                logger.info("Login page detected, performing auto-login...")
+        try:
+            with sync_playwright() as p:
                 try:
-                    self._perform_login_logic(page)
-                    logger.info("Auto-login successful!")
-                except Exception as e:
-                    logger.error(f"Auto-login failed: {e}")
-                    page.screenshot(path="output/login_failed.png")
-            else:
-                logger.info("Active session detected, skipping login.")
-            
-            time.sleep(2)
-            context.close()
+                    context = self._launch_persistent_context(p.chromium, headless=headless, show_window=True)
+                except Exception as exc:
+                    if _retried_launch:
+                        raise
+                    self._reset_session_after_launch_error(exc)
+                    raise _BrowserLaunchFailed()
+
+                page = context.new_page()
+                logger.info(f"Navigating to login page: {self.base_url}")
+                page.goto(self.base_url)
+                
+                try:
+                    page.wait_for_load_state("networkidle", timeout=10000)
+                except:
+                    pass
+
+                is_login_page = "login" in page.url.lower() or \
+                               page.query_selector('input[type="password"]') or \
+                               page.query_selector('input[placeholder*="Password"]')
+
+                if is_login_page:
+                    logger.info("Login page detected, performing auto-login...")
+                    try:
+                        self._perform_login_logic(page)
+                        logger.info("Auto-login successful!")
+                    except Exception as e:
+                        logger.error(f"Auto-login failed: {e}")
+                        page.screenshot(path="output/login_failed.png")
+                else:
+                    logger.info("Active session detected, skipping login.")
+                
+                time.sleep(2)
+                context.close()
+        except _BrowserLaunchFailed:
+            return self.login(headless=headless, _retried_launch=True)
 
     def _clear_session(self):
         """Clear stale session data so next launch forces a fresh login."""
-        import shutil
-        if os.path.exists(self.user_data_dir):
-            shutil.rmtree(self.user_data_dir, ignore_errors=True)
+        def handle_remove_error(func, path, _exc_info):
+            os.chmod(path, stat.S_IWRITE)
+            func(path)
+
+        if os.path.isdir(self.user_data_dir):
+            shutil.rmtree(self.user_data_dir, onerror=handle_remove_error)
+        elif os.path.exists(self.user_data_dir):
+            os.remove(self.user_data_dir)
         os.makedirs(self.user_data_dir, exist_ok=True)
         logger.info("Session cleared. Will perform fresh login.")
 
@@ -78,7 +119,7 @@ class ThinkingDataEngine(BaseEngine):
     def fetch(self, sql: str, **kwargs) -> list:
         return self.run_sql_query(sql_text=sql, show_window=kwargs.get('headless', True) == False)
 
-    def run_sql_query(self, sql_text=None, headless=True, show_window=False, _retried=False):
+    def run_sql_query(self, sql_text=None, headless=True, show_window=False, _retried=False, _retried_launch=False):
         """Run SQL via browser automation. Always uses headed mode with off-screen window for reliable SPA rendering."""
         # Headless Chromium cannot reliably render heavy JS SPAs (like ThinkingData IDE).
         # We always use headed mode; if show_window=False, the window is positioned off-screen.
@@ -90,20 +131,17 @@ class ThinkingDataEngine(BaseEngine):
 
         try:
             with sync_playwright() as p:
-                context = p.chromium.launch_persistent_context(
-                    self.user_data_dir,
-                    headless=False,  # Always headed: headless mode cannot render the SPA reliably
-                    slow_mo=100,
-                    viewport={"width": 1920, "height": 1080},
-                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    args=[
-                        "--disable-blink-features=AutomationControlled",
-                        "--window-size=1920,1080",
-                        # Position window off-screen when not in show mode
-                        "--window-position=0,0" if show_window else "--window-position=-10000,-10000",
-                    ],
-                    permissions=["clipboard-read", "clipboard-write"]
-                )
+                try:
+                    context = self._launch_persistent_context(
+                        p.chromium,
+                        headless=False,  # Always headed: headless mode cannot render the SPA reliably
+                        show_window=show_window,
+                    )
+                except Exception as exc:
+                    if _retried_launch:
+                        raise
+                    self._reset_session_after_launch_error(exc)
+                    raise _BrowserLaunchFailed()
                 page = context.new_page()
 
                 def handle_response(response):
@@ -286,9 +324,18 @@ class ThinkingDataEngine(BaseEngine):
 
                 context.close()
 
+        except _BrowserLaunchFailed:
+            return self.run_sql_query(
+                sql_text=sql_text,
+                headless=headless,
+                show_window=show_window,
+                _retried=_retried,
+                _retried_launch=True,
+            )
+
         except _NeedsFreshLogin:
             # Now fully outside sync_playwright context — safe to recurse
-            return self.run_sql_query(sql_text=sql_text, headless=headless, _retried=True)
+            return self.run_sql_query(sql_text=sql_text, headless=headless, show_window=show_window, _retried=True)
 
         return results_data
 

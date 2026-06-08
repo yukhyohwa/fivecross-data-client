@@ -113,7 +113,7 @@ python tools\log_seek.py3010522
 python tools\log_seek.py ID1 ID2 ID3
 
 # Specify a custom CSV path
-python tools\log_seek.py 30002074 --path data/output/my_log.csv
+python tools\log_seek.py 300000046 --path data\output\fullitemuselogs_20260520_0605_20260605_141238.csv
 ```
 
 ### 3. Task Configuration (JSON Schema)
