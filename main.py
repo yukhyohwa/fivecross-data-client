@@ -150,47 +150,6 @@ def run_fetch_task(task_config, interactive=False):
     except Exception as e:
         logger.error(f"Fetch error: {e}")
 
-def run_predict_task(args):
-    # (Remains similar to previous ltv logic)
-    model_type = args.model
-    file = args.file
-    ecpnu = args.ecpnu
-    net_rate = args.net_rate
-    
-    search_paths = [file, os.path.join(settings.INPUT_DIR, file), os.path.join(settings.PREDICT_INPUT_DIR, file), os.path.join(settings.EXPORT_DIR, file)]
-    input_path = next((p for p in search_paths if os.path.exists(p)), None)
-            
-    if not input_path:
-        logger.error(f"Input file not found: {file}")
-        return
-
-    try:
-        from src.core.services.analytics.validator import DataValidator
-        logger.info(f"[*] Predicting {model_type.upper()}...")
-        df_input = pd.read_csv(input_path) if input_path.endswith('.csv') else pd.read_excel(input_path)
-        
-        if model_type == "ltv":
-            from src.core.services.analytics.ltv_service import LTVService
-            df_clean = DataValidator.clean_ltv_data(df_input)
-            service = LTVService(df_clean)
-            result_df = service.predict(ecpnu=ecpnu, net_rate=net_rate)
-            benchmarks = service.get_summary_benchmarks()
-            display_preview(benchmarks, title="LTV Benchmarks")
-            export_name = f"LTV_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            export_data(result_df, filename_prefix=export_name, formats=["xlsx"], output_dir=settings.OUTPUT_DIR)
-        
-        elif model_type == "mau":
-            from src.core.services.analytics.mau_service import MAUService
-            df_clean = DataValidator.clean_mau_data(df_input)
-            service = MAUService(df_clean)
-            result_df = service.predict(months_to_predict=args.months, growth_factor=args.growth)
-            display_preview(result_df.tail(15), title="MAU Forecast")
-            export_name = f"MAU_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            export_data(result_df, filename_prefix=export_name, formats=["xlsx"], output_dir=settings.OUTPUT_DIR)
-
-    except Exception as e:
-        logger.error(f"Prediction error: {e}")
-
 def main():
     parser = argparse.ArgumentParser(description="FiveCross Unified Data Client")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -203,14 +162,6 @@ def main():
     fetch_parser.add_argument("--interactive", action="store_true", default=False)
     fetch_parser.add_argument("--show", action="store_true", default=False, help="Show browser (TA only)")
     fetch_parser.add_argument("--mailto", help="Comma separated emails")
-
-    predict_parser = subparsers.add_parser("predict", help="Run analytics models")
-    predict_parser.add_argument("model", choices=["ltv", "mau"])
-    predict_parser.add_argument("--file", required=True)
-    predict_parser.add_argument("--ecpnu", type=float, default=50.0)
-    predict_parser.add_argument("--net_rate", type=float, default=0.35)
-    predict_parser.add_argument("--months", type=int, default=12, help="For MAU: Months to forecast")
-    predict_parser.add_argument("--growth", type=float, default=1.0, help="For MAU: Growth factor for NUU")
 
     parser.add_argument("--login", action="store_true")
     parser.add_argument("--region", default="global", help="Region for --login (global or china)")
@@ -241,8 +192,6 @@ def main():
             # Single CLI runs (ad-hoc) are interactive by default
             run_fetch_task(vars(args), interactive=True)
             
-    elif args.command == "predict":
-        run_predict_task(args)
     else:
         parser.print_help()
 

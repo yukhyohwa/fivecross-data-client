@@ -83,7 +83,6 @@ class Settings:
     # --- Data & Task Path Config ---
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     DATA_DIR = os.path.join(BASE_DIR, "data")
-    INPUT_DIR = os.path.join(DATA_DIR, "input")
     OUTPUT_DIR = os.path.join(DATA_DIR, "output")
     # 统一输出路径，不再区分子目录
     EXPORT_DIR = OUTPUT_DIR 
@@ -93,8 +92,6 @@ class Settings:
     TEMPLATES_DIR = os.path.join(TASKS_DIR, "templates")
     CONFIGS_DIR = os.path.join(TASKS_DIR, "configs")
     JOBS_DIR = os.path.join(TASKS_DIR, "jobs")
-    PREDICT_DIR = os.path.join(TASKS_DIR, "predict")
-    PREDICT_INPUT_DIR = os.path.join(PREDICT_DIR, "input")
 
     # --- Email Config ---
     SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
@@ -105,9 +102,9 @@ class Settings:
     def __post_init__(self):
         # 确保目录存在
         dirs_to_create = [
-            self.INPUT_DIR, self.OUTPUT_DIR,
+            self.OUTPUT_DIR,
             self.TEMPLATES_DIR, self.CONFIGS_DIR, self.JOBS_DIR,
-            self.PREDICT_INPUT_DIR, self.TA_SESSION_DIR
+            self.TA_SESSION_DIR
         ]
         for path in dirs_to_create:
             os.makedirs(path, exist_ok=True)
